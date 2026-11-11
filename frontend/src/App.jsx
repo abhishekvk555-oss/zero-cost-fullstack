@@ -19,6 +19,8 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem('token') || '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('register');
 
@@ -27,7 +29,7 @@ export default function App() {
   const [apiStatus, setApiStatus] = useState('Checking');
   const [message, setMessage] = useState('');
 
-    // SQL Editor state
+  // SQL Editor state
   const [query, setQuery] = useState('SELECT * FROM employees;');
   const [queryResults, setQueryResults] = useState(null);
   const [queryError, setQueryError] = useState('');
@@ -80,7 +82,7 @@ export default function App() {
     setMessage('');
     try {
       const endpoint = modalMode === 'register' ? '/api/auth/register' : '/api/auth/login';
-      const body = { email, password };
+      const body = { email, password, fullName, whatsappNumber };
       const data = await call(endpoint, { method: 'POST', body: JSON.stringify(body) }, '');
       localStorage.setItem('token', data.token);
       setToken(data.token);
@@ -104,7 +106,7 @@ export default function App() {
     }
   }
 
-    async function runQuery() {
+  async function runQuery() {
     setQueryError('');
     setQueryResults(null);
     try {
@@ -151,7 +153,8 @@ export default function App() {
               <p className="muted">Your next step is to practise a little SQL every day.</p>
             </div>
           </div>
-                    {/* SQL Query Editor Section */}
+          
+          {/* SQL Query Editor Section */}
           <section className="dashboard-panel" style={{ marginTop: '2rem', border: '2px solid var(--primary)' }}>
             <h2>Practice SQL Query Editor</h2>
             <p className="muted" style={{ marginBottom: '1rem' }}>
@@ -196,29 +199,6 @@ export default function App() {
                 )}
               </div>
             )}
-          </section>
-
-          {/* Practice Notes Section */}
-          <section className="dashboard-panel" style={{ marginTop: '2rem' }}>
-            <h2>My SQL Practice Notes</h2>
-            <form className="input-row" onSubmit={addItem} style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-              <input 
-                aria-label="Learning note" 
-                placeholder="Write a SQL query or learning note here..." 
-                value={title} 
-                onChange={event => setTitle(event.target.value)} 
-                style={{ flex: 1, padding: '0.8rem', border: '1px solid var(--border)', borderRadius: '6px' }}
-              />
-              <button className="btn-primary" type="submit">Save Note</button>
-            </form>
-            {items.length ? (
-              <ul className="item-list">
-                {items.map(item => <li key={item.id}>{item.title}</li>)}
-              </ul>
-            ) : (
-              <p className="muted">No notes yet. Add your first SQL query above.</p>
-            )}
-            {message && <p className="form-message" role="status">{message}</p>}
           </section>
 
           {/* 7-Day Curriculum Section */}
@@ -296,7 +276,43 @@ export default function App() {
 
       <footer className="site-footer"><a className="logo" href="#">Master<span>SQL</span></a><p>Learn SQL by understanding it, practising it and applying it.</p><span>© {new Date().getFullYear()} Master SQL in 7 Days</span><small>Backend status: {apiStatus}</small></footer>
 
-      {isModalOpen && <div className="modal-overlay" onClick={() => setIsModalOpen(false)}><section className="modal-content" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={event => event.stopPropagation()}><button className="modal-close" aria-label="Close" onClick={() => setIsModalOpen(false)}>×</button><p className="eyebrow">STUDENT ACCOUNT</p><h2 id="auth-title">{modalMode === 'register' ? 'Create your account' : 'Welcome back'}</h2><p className="modal-subtitle">Access your SQL learning space.</p><form onSubmit={handleAuth}><label>Email address<input type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required /></label><label>Password<input type="password" autoComplete={modalMode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={8} /></label>{message && <p className="form-message" role="alert">{message}</p>}<button className="btn-primary btn-full" type="submit">{modalMode === 'register' ? 'Create account' : 'Log in'}</button></form><button className="switch-auth" onClick={() => { setModalMode(modalMode === 'register' ? 'login' : 'register'); setMessage(''); }}>{modalMode === 'register' ? 'Already registered? Log in' : 'New here? Create an account'}</button></section></div>}
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <section className="modal-content" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={event => event.stopPropagation()}>
+            <button className="modal-close" aria-label="Close" onClick={() => setIsModalOpen(false)}>×</button>
+            <p className="eyebrow">STUDENT ACCOUNT</p>
+            <h2 id="auth-title">{modalMode === 'register' ? 'Create your account' : 'Welcome back'}</h2>
+            <p className="modal-subtitle">Access your SQL learning space.</p>
+            <form onSubmit={handleAuth}>
+              
+              {/* NEW FIELDS ADDED HERE */}
+              {modalMode === 'register' && (
+                <>
+                  <label>Full Name
+                    <input type="text" placeholder="John Doe" value={fullName} onChange={event => setFullName(event.target.value)} required />
+                  </label>
+                  <label>WhatsApp Number
+                    <input type="tel" placeholder="919876543210" value={whatsappNumber} onChange={event => setWhatsappNumber(event.target.value)} required />
+                  </label>
+                </>
+              )}
+
+              <label>Email address
+                <input type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required />
+              </label>
+              <label>Password
+                <input type="password" autoComplete={modalMode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={8} />
+              </label>
+              
+              {message && <p className="form-message" role="alert">{message}</p>}
+              <button className="btn-primary btn-full" type="submit">{modalMode === 'register' ? 'Create account' : 'Log in'}</button>
+            </form>
+            <button className="switch-auth" onClick={() => { setModalMode(modalMode === 'register' ? 'login' : 'register'); setMessage(''); }}>
+              {modalMode === 'register' ? 'Already registered? Log in' : 'New here? Create an account'}
+            </button>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
