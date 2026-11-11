@@ -34,6 +34,11 @@ export default function App() {
   const [queryResults, setQueryResults] = useState(null);
   const [queryError, setQueryError] = useState('');
 
+  // Admin Dashboard State
+  const [adminSecret, setAdminSecret] = useState('');
+  const [adminStudents, setAdminStudents] = useState([]);
+  const [adminError, setAdminError] = useState('');
+
   async function call(path, options = {}, authToken = token) {
     const response = await fetch(`${API}${path}`, {
       ...options,
@@ -117,6 +122,21 @@ export default function App() {
       setQueryResults(data);
     } catch (error) {
       setQueryError(error.message);
+    }
+  }
+
+  async function fetchStudents() {
+    setAdminError('');
+    try {
+      const res = await fetch(`${API}/api/admin/students?secret=${adminSecret}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to fetch');
+      }
+      const data = await res.json();
+      setAdminStudents(data);
+    } catch (error) {
+      setAdminError(error.message);
     }
   }
 
@@ -267,6 +287,61 @@ export default function App() {
         <section className="section audience-section" id="who">
           <div className="section-header"><p className="eyebrow">MADE FOR PRACTICAL LEARNERS</p><h2>Who should join?</h2></div>
           <div className="audience-grid"><article><h3>Beginners</h3><p>Start with SQL fundamentals and learn how to retrieve and understand data.</p></article><article><h3>Students and graduates</h3><p>Build a useful technical skill with guided examples and regular practice.</p></article><article><h3>Job seekers and analysts</h3><p>Revise joins, subqueries and window functions through interview-style problems.</p></article></div>
+        </section>
+
+        {/* Admin Dashboard Section */}
+        <section className="section" id="admin" style={{ borderTop: '2px dashed #cbd5e1', marginTop: '4rem' }}>
+          <div className="section-header">
+            <p className="eyebrow">FOR THE INSTRUCTOR</p>
+            <h2>Admin Dashboard</h2>
+            <p>Enter your secret password to view registered students.</p>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '1rem', maxWidth: '400px', margin: '0 auto 2rem auto' }}>
+            <input 
+              type="password" 
+              placeholder="Enter Admin Password..." 
+              value={adminSecret} 
+              onChange={e => setAdminSecret(e.target.value)}
+              style={{ flex: 1, padding: '0.8rem', border: '1px solid var(--border)', borderRadius: '6px' }}
+            />
+            <button className="btn-primary" onClick={fetchStudents}>View Students</button>
+          </div>
+
+          {adminError && <p style={{ color: 'red', textAlign: 'center', fontWeight: 'bold' }}>{adminError}</p>}
+
+          {adminStudents.length > 0 && (
+            <div style={{ overflowX: 'auto', background: 'white', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc' }}>
+                    <th style={{ padding: '1rem', borderBottom: '2px solid var(--border)' }}>Name</th>
+                    <th style={{ padding: '1rem', borderBottom: '2px solid var(--border)' }}>Email</th>
+                    <th style={{ padding: '1rem', borderBottom: '2px solid var(--border)' }}>WhatsApp</th>
+                    <th style={{ padding: '1rem', borderBottom: '2px solid var(--border)' }}>Payment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminStudents.map(student => (
+                    <tr key={student.id}>
+                      <td style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>{student.full_name}</td>
+                      <td style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>{student.email}</td>
+                      <td style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>{student.whatsapp_number}</td>
+                      <td style={{ padding: '1rem', borderBottom: '1px solid var(--border)' }}>
+                        <span style={{ 
+                          background: student.payment_status === 'paid' ? '#dcfce7' : '#fef08a', 
+                          color: student.payment_status === 'paid' ? '#166534' : '#854d0e',
+                          padding: '0.3rem 0.8rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold'
+                        }}>
+                          {student.payment_status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
 
         <section className="enroll-banner" id="enroll"><div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹200.</p></div><button className="btn-light btn-large" onClick={enroll}>Enquire on WhatsApp</button></section>
