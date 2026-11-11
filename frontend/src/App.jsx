@@ -27,6 +27,11 @@ export default function App() {
   const [apiStatus, setApiStatus] = useState('Checking');
   const [message, setMessage] = useState('');
 
+    // SQL Editor state
+  const [query, setQuery] = useState('SELECT * FROM employees;');
+  const [queryResults, setQueryResults] = useState(null);
+  const [queryError, setQueryError] = useState('');
+
   async function call(path, options = {}, authToken = token) {
     const response = await fetch(`${API}${path}`, {
       ...options,
@@ -99,6 +104,20 @@ export default function App() {
     }
   }
 
+    async function runQuery() {
+    setQueryError('');
+    setQueryResults(null);
+    try {
+      const data = await call('/api/practice/execute', {
+        method: 'POST',
+        body: JSON.stringify({ query }),
+      });
+      setQueryResults(data);
+    } catch (error) {
+      setQueryError(error.message);
+    }
+  }
+
   function logout() {
     localStorage.removeItem('token');
     setToken('');
@@ -132,6 +151,52 @@ export default function App() {
               <p className="muted">Your next step is to practise a little SQL every day.</p>
             </div>
           </div>
+                    {/* SQL Query Editor Section */}
+          <section className="dashboard-panel" style={{ marginTop: '2rem', border: '2px solid var(--primary)' }}>
+            <h2>Practice SQL Query Editor</h2>
+            <p className="muted" style={{ marginBottom: '1rem' }}>
+              Try running queries against our sample <code>employees</code> table. Example: <code>SELECT * FROM employees;</code>
+            </p>
+            
+            <textarea
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              style={{ width: '100%', height: '100px', padding: '1rem', fontFamily: 'monospace', fontSize: '1rem', borderRadius: '6px', border: '1px solid var(--border)', marginBottom: '1rem' }}
+            />
+            
+            <button className="btn-primary" onClick={runQuery} style={{ marginBottom: '1.5rem' }}>
+              Run Query
+            </button>
+
+            {queryError && <p style={{ color: 'red', fontWeight: 'bold' }}>Error: {queryError}</p>}
+
+            {queryResults && (
+              <div style={{ overflowX: 'auto' }}>
+                {queryResults.columns.length > 0 ? (
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                    <thead>
+                      <tr>
+                        {queryResults.columns.map((col, i) => (
+                          <th key={i} style={{ borderBottom: '2px solid var(--border)', padding: '0.5rem', background: '#f8fafc' }}>{col}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {queryResults.values.map((row, i) => (
+                        <tr key={i}>
+                          {row.map((cell, j) => (
+                            <td key={j} style={{ borderBottom: '1px solid var(--border)', padding: '0.5rem' }}>{cell}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="muted">Query executed successfully. No data returned.</p>
+                )}
+              </div>
+            )}
+          </section>
 
           {/* Practice Notes Section */}
           <section className="dashboard-panel" style={{ marginTop: '2rem' }}>
