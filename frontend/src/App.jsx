@@ -147,13 +147,34 @@ export default function App() {
     setMessage('You have been logged out.');
   }
 
-  function enroll() {
-    const text = encodeURIComponent('Hi! I am interested in enrolling in Master SQL in 7 Days. Please share the registration and payment details.');
-    const url = WHATSAPP_NUMBER
-      ? `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`
-      : `https://wa.me/?text=${text}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
+  // Cashfree Payment Integration
+  const handlePayment = async () => {
+    try {
+      const response = await fetch(`${API}/api/payment/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: 1, // For testing. In production, use the logged-in user's ID
+          amount: 200,
+          customerName: fullName || "Test Student",
+          customerEmail: email || "test@example.com",
+          customerPhone: whatsappNumber || "9999999999",
+        }),
+      });
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      const cashfree = window.Cashfree({ mode: "sandbox" });
+      cashfree.checkout({
+        paymentSessionId: data.payment_session_id,
+        redirectTarget: "_self",
+      });
+
+    } catch (error) {
+      alert("Payment Error: " + error.message);
+    }
+  };
 
   // --- LOGGED IN DASHBOARD ---
   
@@ -265,7 +286,8 @@ export default function App() {
             <h1>Go from SQL basics to <span>confident query writing.</span></h1>
             <p className="hero-description">Practise SQL step by step with live teaching, practical examples and interview-style questions. Build the skills to work with real datasets.</p>
             <div className="hero-actions">
-              <button className="btn-primary btn-large" onClick={enroll}>Join the course · ₹200</button>
+              {/* Updated Button to trigger Cashfree */}
+              <button className="btn-primary btn-large" onClick={handlePayment}>Join the course · ₹200</button>
               <a className="text-link" href="#curriculum">Explore the syllabus ↓</a>
             </div>
             <div className="course-highlights"><span>✓ 7 focused learning days</span><span>✓ Live instructor-led sessions</span><span>✓ Practice and revision</span></div>
@@ -344,7 +366,8 @@ export default function App() {
           )}
         </section>
 
-        <section className="enroll-banner" id="enroll"><div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹200.</p></div><button className="btn-light btn-large" onClick={enroll}>Enquire on WhatsApp</button></section>
+        {/* Updated Bottom Banner to trigger Cashfree */}
+        <section className="enroll-banner" id="enroll"><div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹200.</p></div><button className="btn-light btn-large" onClick={handlePayment}>Enquire on WhatsApp</button></section>
 
         <section className="section faq-section" id="faq"><div className="section-header"><p className="eyebrow">NEED TO KNOW MORE?</p><h2>Frequently asked questions</h2></div><details><summary>Is this course suitable for beginners?</summary><p>Yes. The course starts with SQL fundamentals and gradually moves to more advanced query-writing concepts.</p></details><details><summary>How are classes delivered?</summary><p>Classes are delivered live online. Course timing and joining details are shared after registration.</p></details><details><summary>What is the course fee?</summary><p>The one-time course fee is ₹200.</p></details></section>
       </main>
@@ -360,7 +383,6 @@ export default function App() {
             <p className="modal-subtitle">Access your SQL learning space.</p>
             <form onSubmit={handleAuth}>
               
-              {/* NEW FIELDS ADDED HERE */}
               {modalMode === 'register' && (
                 <>
                   <label>Full Name
