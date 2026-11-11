@@ -115,6 +115,7 @@ export default function App() {
   }
 
   // --- LOGGED IN DASHBOARD ---
+  
   if (token) {
     return (
       <div className="app-shell">
@@ -122,22 +123,54 @@ export default function App() {
           <a className="logo" href="/">Master<span>SQL</span></a>
           <button className="btn-nav" onClick={logout}>Log out</button>
         </nav>
+        
         <main className="dashboard-content">
-          <p className="eyebrow">STUDENT AREA</p>
-          <h1>Welcome to your learning space</h1>
-          <p className="muted">Your next step is to practise a little SQL every day.</p>
-          <section className="dashboard-panel">
-            <h2>My learning notes</h2>
-            <form className="input-row" onSubmit={addItem}>
-              <input aria-label="Learning note" placeholder="Write a learning note..." value={title} onChange={event => setTitle(event.target.value)} />
-              <button className="btn-primary" type="submit">Save note</button>
+          <div className="dashboard-header">
+            <div>
+              <p className="eyebrow">STUDENT AREA</p>
+              <h1>Welcome to your learning space</h1>
+              <p className="muted">Your next step is to practise a little SQL every day.</p>
+            </div>
+          </div>
+
+          {/* Practice Notes Section */}
+          <section className="dashboard-panel" style={{ marginTop: '2rem' }}>
+            <h2>My SQL Practice Notes</h2>
+            <form className="input-row" onSubmit={addItem} style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+              <input 
+                aria-label="Learning note" 
+                placeholder="Write a SQL query or learning note here..." 
+                value={title} 
+                onChange={event => setTitle(event.target.value)} 
+                style={{ flex: 1, padding: '0.8rem', border: '1px solid var(--border)', borderRadius: '6px' }}
+              />
+              <button className="btn-primary" type="submit">Save Note</button>
             </form>
-            {items.length ? <ul className="item-list">{items.map(item => <li key={item.id}>{item.title}</li>)}</ul> : <p className="muted">No notes yet. Add your first learning note above.</p>}
+            {items.length ? (
+              <ul className="item-list">
+                {items.map(item => <li key={item.id}>{item.title}</li>)}
+              </ul>
+            ) : (
+              <p className="muted">No notes yet. Add your first SQL query above.</p>
+            )}
             {message && <p className="form-message" role="status">{message}</p>}
           </section>
-          <section className="dashboard-panel">
-            <h2>Your 7-day learning path</h2>
-            <div className="curriculum-list">{curriculum.map(item => <article className="curriculum-row" key={item.day}><span className="day-pill">{item.day}</span><div><h3>{item.title}</h3><p>{item.topics}</p></div></article>)}</div>
+
+          {/* 7-Day Curriculum Section */}
+          <section className="dashboard-panel" style={{ marginTop: '2rem' }}>
+            <h2>Your 7-Day Learning Path</h2>
+            <p className="muted" style={{ marginBottom: '1.5rem' }}>Follow this schedule to master SQL in one week.</p>
+            <div className="curriculum-list">
+              {curriculum.map(item => (
+                <article className="curriculum-row" key={item.day}>
+                  <span className="day-pill">{item.day}</span>
+                  <div>
+                    <h3>{item.title}</h3>
+                    <p>{item.topics}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </section>
         </main>
       </div>
