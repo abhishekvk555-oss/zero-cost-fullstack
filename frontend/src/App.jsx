@@ -3,7 +3,7 @@ import './style.css';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:10000';
 // Replace this with your actual WhatsApp number with country code (e.g., 919876543210)
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210';
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '919956042831';
 
 const curriculum = [
   { day: 'Day 1', title: 'SQL foundations', topics: 'Databases, tables, SELECT, DISTINCT, WHERE, ORDER BY and LIMIT.' },
