@@ -18,7 +18,6 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem('token') || '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('register');
   const [items, setItems] = useState([]);
@@ -41,7 +40,7 @@ export default function App() {
   }
 
   useEffect(() => {
-    fetch(`${API}/health`)
+    fetch(`${API}/`)
       .then(response => {
         if (!response.ok) throw new Error('API unavailable');
         return response.json();
@@ -74,7 +73,7 @@ export default function App() {
     setMessage('');
     try {
       const endpoint = modalMode === 'register' ? '/api/auth/register' : '/api/auth/login';
-      const body = modalMode === 'register' ? { name, email, password } : { email, password };
+      const body = { email, password };
       const data = await call(endpoint, { method: 'POST', body: JSON.stringify(body) }, '');
       localStorage.setItem('token', data.token);
       setToken(data.token);
@@ -176,7 +175,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="trust-strip"><div><strong>7 days</strong><span>Structured learning plan</span></div><div><strong>Live</strong><span>Instructor-led sessions</span></div><div><strong>₹200</strong><span>One-time course fee</span></div></section>
+        <section className="trust-strip"><div><strong>7 days</strong><span>Structured learning plan</span></div><div><strong>13.5 hours</strong><span>Live instructor-led sessions</span></div><div><strong>₹200</strong><span>One-time course fee</span></div></section>
 
         <section className="section" id="curriculum">
           <div className="section-header"><p className="eyebrow">YOUR LEARNING ROADMAP</p><h2>What you'll learn in 7 days</h2><p>Each day builds on the previous one, taking you from writing basic queries to solving analyst-style SQL problems.</p></div>
@@ -195,7 +194,7 @@ export default function App() {
 
       <footer className="site-footer"><a className="logo" href="#">Master<span>SQL</span></a><p>Learn SQL by understanding it, practising it and applying it.</p><span>© {new Date().getFullYear()} Master SQL in 7 Days</span><small>Backend status: {apiStatus}</small></footer>
 
-      {isModalOpen && <div className="modal-overlay" onClick={() => setIsModalOpen(false)}><section className="modal-content" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={event => event.stopPropagation()}><button className="modal-close" aria-label="Close" onClick={() => setIsModalOpen(false)}>×</button><p className="eyebrow">STUDENT ACCOUNT</p><h2 id="auth-title">{modalMode === 'register' ? 'Create your account' : 'Welcome back'}</h2><p className="modal-subtitle">Access your SQL learning space.</p><form onSubmit={handleAuth}>{modalMode === 'register' && <label>Full name<input autoComplete="name" value={name} onChange={event => setName(event.target.value)} required minLength={2} /></label>}<label>Email address<input type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required /></label><label>Password<input type="password" autoComplete={modalMode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={8} /></label>{message && <p className="form-message" role="alert">{message}</p>}<button className="btn-primary btn-full" type="submit">{modalMode === 'register' ? 'Create account' : 'Log in'}</button></form><button className="switch-auth" onClick={() => { setModalMode(modalMode === 'register' ? 'login' : 'register'); setMessage(''); }}>{modalMode === 'register' ? 'Already registered? Log in' : 'New here? Create an account'}</button></section></div>}
+      {isModalOpen && <div className="modal-overlay" onClick={() => setIsModalOpen(false)}><section className="modal-content" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={event => event.stopPropagation()}><button className="modal-close" aria-label="Close" onClick={() => setIsModalOpen(false)}>×</button><p className="eyebrow">STUDENT ACCOUNT</p><h2 id="auth-title">{modalMode === 'register' ? 'Create your account' : 'Welcome back'}</h2><p className="modal-subtitle">Access your SQL learning space.</p><form onSubmit={handleAuth}><label>Email address<input type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required /></label><label>Password<input type="password" autoComplete={modalMode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={8} /></label>{message && <p className="form-message" role="alert">{message}</p>}<button className="btn-primary btn-full" type="submit">{modalMode === 'register' ? 'Create account' : 'Log in'}</button></form><button className="switch-auth" onClick={() => { setModalMode(modalMode === 'register' ? 'login' : 'register'); setMessage(''); }}>{modalMode === 'register' ? 'Already registered? Log in' : 'New here? Create an account'}</button></section></div>}
     </div>
   );
 }
