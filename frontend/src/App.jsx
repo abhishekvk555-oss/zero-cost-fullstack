@@ -165,7 +165,7 @@ export default function App() {
       const data = await response.json();
       if (data.error) throw new Error(data.error);
 
-      const cashfree = window.Cashfree({ mode: "sandbox" });
+      const cashfree = window.Cashfree({ mode: "production" });
       cashfree.checkout({
         paymentSessionId: data.payment_session_id,
         redirectTarget: "_self",
