@@ -155,7 +155,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientId: 1, // For testing. In production, use the logged-in user's ID
-          amount: 1,
+          amount: 201,
           customerName: fullName || "Test Student",
           customerEmail: email || "test@example.com",
           customerPhone: whatsappNumber || "9999999999",
