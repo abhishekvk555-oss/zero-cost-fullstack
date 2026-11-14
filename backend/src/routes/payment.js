@@ -4,8 +4,9 @@ import { sql } from '../config/db.js';
 
 const router = express.Router();
 
+// FIXED: Changed from SANDBOX to PRODUCTION
 const cashfree = new Cashfree(
-  CFEnvironment.SANDBOX, 
+  CFEnvironment.PRODUCTION, 
   process.env.CASHFREE_CLIENT_ID,
   process.env.CASHFREE_CLIENT_SECRET
 );
@@ -25,7 +26,8 @@ router.post('/create-order', async (req, res) => {
         customer_phone: customerPhone,
       },
       order_meta: {
-        return_url: `http://localhost:5173/?order_id={order_id}`,
+        // Changed to your live Vercel URL
+        return_url: `https://zero-cost-fullstack-txiy.vercel.app/?order_id={order_id}`,
       },
     };
 
@@ -65,6 +67,30 @@ router.post('/webhook', async (req, res) => {
   }
 
   res.status(200).send("Webhook received");
+});
+
+// TEMPORARY TEST ROUTE
+router.get('/test-keys', async (req, res) => {
+  try {
+    const request = {
+      order_amount: 200,
+      order_currency: "INR",
+      customer_details: {
+        customer_id: "test_user_1",
+        customer_name: "Test User",
+        customer_email: "test@example.com",
+        customer_phone: "9999999999",
+      },
+    };
+    const response = await cashfree.PGCreateOrder(request);
+    res.json({ success: true, message: "Keys are working perfectly!", data: response.data });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: "Cashfree Error", 
+      details: error.response ? error.response.data : error.message 
+    });
+  }
 });
 
 export default router;
