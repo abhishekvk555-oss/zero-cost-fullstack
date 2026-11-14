@@ -205,7 +205,7 @@ export default function App() {
   // --- SUCCESS PAGE AFTER PAYMENT ---
   const queryParams = new URLSearchParams(window.location.search);
   const orderId = queryParams.get('order_id');
-  const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/GA9LNIFJeSz2sSQymKA6Km"; // <-- YOUR GROUP LINK
+  const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/FpA3sfOf8tF6TYIOw2px8D"; // <-- YOUR GROUP LINK
 
   if (orderId && !token) {
     if (isVerifying) {
