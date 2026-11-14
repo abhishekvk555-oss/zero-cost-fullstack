@@ -82,4 +82,23 @@ router.post('/webhook', async (req, res) => {
   res.status(200).send("Webhook received");
 });
 
-export default router;
+// 3. Check payment status route
+router.get('/verify-payment', async (req, res) => {
+  const { orderId } = req.query;
+  try {
+    const result = await sql`
+      SELECT status FROM payments_status 
+      WHERE cf_order_id = ${orderId}
+    `;
+    
+    if (result.length > 0 && result[0].status === 'paid') {
+      res.json({ isPaid: true });
+    } else {
+      res.json({ isPaid: false });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+export default router; // <--- THIS MUST BE AT THE VERY BOTTOM

@@ -37,11 +37,15 @@ export default function App() {
   const [adminStudents, setAdminStudents] = useState([]);
   const [adminError, setAdminError] = useState('');
 
-  // NEW: Checkout Modal State
+  // Checkout Modal State
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [checkoutName, setCheckoutName] = useState('');
   const [checkoutEmail, setCheckoutEmail] = useState('');
   const [checkoutPhone, setCheckoutPhone] = useState('');
+
+  // Payment Verification State
+  const [isPaymentVerified, setIsPaymentVerified] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   async function call(path, options = {}, authToken = token) {
     const response = await fetch(`${API}${path}`, {
@@ -151,7 +155,6 @@ export default function App() {
     setMessage('You have been logged out.');
   }
 
-  // NEW: Handle the actual payment after form submit
   const handlePayment = async (e) => {
     e.preventDefault();
     try {
@@ -180,20 +183,63 @@ export default function App() {
     }
   };
 
+  // Verify payment when the page loads with an order_id
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const orderId = queryParams.get('order_id');
+
+    if (orderId && !token) {
+      setIsVerifying(true);
+      fetch(`${API}/api/payment/verify-payment?orderId=${orderId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.isPaid) {
+            setIsPaymentVerified(true);
+          }
+        })
+        .catch(err => console.error("Verification error:", err))
+        .finally(() => setIsVerifying(false));
+    }
+  }, [token]);
+
   // --- SUCCESS PAGE AFTER PAYMENT ---
   const queryParams = new URLSearchParams(window.location.search);
   const orderId = queryParams.get('order_id');
-  const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/GA9LNIFJeSz2sSQymKA6Km"; // <-- PUT YOUR GROUP LINK HERE
+  const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/GA9LNIFJeSz2sSQymKA6Km"; // <-- YOUR GROUP LINK
 
   if (orderId && !token) {
+    if (isVerifying) {
+      return (
+        <div className="app-shell" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
+          <h2>Verifying your payment... Please wait.</h2>
+        </div>
+      );
+    }
+
+    if (isPaymentVerified) {
+      return (
+        <div className="app-shell" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
+          <div className="card" style={{ maxWidth: '500px', textAlign: 'center', padding: '3rem 2rem' }}>
+            <div style={{ background: '#dcfce7', color: '#166534', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 1.5rem auto', fontSize: '2rem' }}>✓</div>
+            <h2 style={{ marginBottom: '1rem' }}>Payment Successful!</h2>
+            <p style={{ color: '#475569', marginBottom: '2rem' }}>Thank you for joining MasterSQL. Click the button below to join the private WhatsApp group where all course links and updates will be shared.</p>
+            <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
+              Join WhatsApp Group
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // If payment failed or was cancelled
     return (
       <div className="app-shell" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
         <div className="card" style={{ maxWidth: '500px', textAlign: 'center', padding: '3rem 2rem' }}>
-          <div style={{ background: '#dcfce7', color: '#166534', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 1.5rem auto', fontSize: '2rem' }}>✓</div>
-          <h2 style={{ marginBottom: '1rem' }}>Payment Successful!</h2>
-          <p style={{ color: '#475569', marginBottom: '2rem' }}>Thank you for joining MasterSQL. Click the button below to join the private WhatsApp group where all course links and updates will be shared.</p>
-          <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
-            Join WhatsApp Group
+          <div style={{ background: '#fee2e2', color: '#991b1b', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 1.5rem auto', fontSize: '2rem' }}>✕</div>
+          <h2 style={{ marginBottom: '1rem' }}>Payment Failed or Cancelled</h2>
+          <p style={{ color: '#475569', marginBottom: '2rem' }}>We could not verify your payment. If you believe this is a mistake, please contact us.</p>
+          <a href="/" className="btn-primary" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
+            Return to Homepage
           </a>
         </div>
       </div>
@@ -307,7 +353,6 @@ export default function App() {
             <h1>Go from SQL basics to <span>confident query writing.</span></h1>
             <p className="hero-description">Practise SQL step by step with live teaching, practical examples and interview-style questions. Build the skills to work with real datasets.</p>
             <div className="hero-actions">
-              {/* CHANGED: Now opens the checkout modal */}
               <button className="btn-primary btn-large" onClick={() => setIsCheckoutModalOpen(true)}>Join the course · ₹200</button>
               <a className="text-link" href="#curriculum">Explore the syllabus ↓</a>
             </div>
@@ -388,7 +433,6 @@ export default function App() {
 
         <section className="enroll-banner" id="enroll">
           <div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹200.</p></div>
-          {/* CHANGED: Now opens the checkout modal */}
           <button className="btn-light btn-large" onClick={() => setIsCheckoutModalOpen(true)}>Enquire on WhatsApp</button>
         </section>
 
@@ -439,7 +483,7 @@ export default function App() {
         </div>
       )}
 
-      {/* --- NEW: CHECKOUT MODAL --- */}
+      {/* --- CHECKOUT MODAL --- */}
       {isCheckoutModalOpen && (
         <div className="modal-overlay" onClick={() => setIsCheckoutModalOpen(false)}>
           <section className="modal-content" role="dialog" onClick={e => e.stopPropagation()}>
