@@ -4,40 +4,53 @@ import { sql } from '../config/db.js';
 
 const router = express.Router();
 
-// FIXED: Changed from SANDBOX to PRODUCTION
 const cashfree = new Cashfree(
   CFEnvironment.PRODUCTION, 
   process.env.CASHFREE_CLIENT_ID,
   process.env.CASHFREE_CLIENT_SECRET
 );
 
-// 1. Route to create a payment order
+// 1. Save details and create a payment order
 router.post('/create-order', async (req, res) => {
-  const { clientId, amount, customerName, customerEmail, customerPhone } = req.body;
+  const { amount, customerName, customerEmail, customerPhone } = req.body;
 
   try {
+    // A. Save the student's details to your Neon Database
+    const clientResult = await sql`
+      INSERT INTO clients_details (full_name, email, whatsapp_number)
+      VALUES (${customerName}, ${customerEmail}, ${customerPhone})
+      RETURNING id
+    `;
+    const newClientId = clientResult[0].id;
+
+    // B. Create a pending payment record linked to this new client
+    await sql`
+      INSERT INTO payments_status (client_id, amount, status)
+      VALUES (${newClientId}, ${amount}, 'pending')
+    `;
+
+    // C. Create the Cashfree Order
     const request = {
       order_amount: amount,
       order_currency: "INR",
       customer_details: {
-        customer_id: `client_${clientId}`,
+        customer_id: `client_${newClientId}`,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
       },
       order_meta: {
-        // Changed to your live Vercel URL
         return_url: `https://zero-cost-fullstack-txiy.vercel.app/?order_id={order_id}`,
       },
     };
 
     const response = await cashfree.PGCreateOrder(request);
     
-    // Save the Cashfree Order ID to your database
+    // D. Save the Cashfree Order ID to the database
     await sql`
       UPDATE payments_status 
       SET cf_order_id = ${response.data.order_id}
-      WHERE client_id = ${clientId}
+      WHERE client_id = ${newClientId}
     `;
 
     res.json({ payment_session_id: response.data.payment_session_id });
@@ -47,7 +60,7 @@ router.post('/create-order', async (req, res) => {
   }
 });
 
-// 2. Webhook route (Cashfree calls this automatically when payment succeeds)
+// 2. Webhook route
 router.post('/webhook', async (req, res) => {
   const event = req.body;
 
@@ -67,30 +80,6 @@ router.post('/webhook', async (req, res) => {
   }
 
   res.status(200).send("Webhook received");
-});
-
-// TEMPORARY TEST ROUTE
-router.get('/test-keys', async (req, res) => {
-  try {
-    const request = {
-      order_amount: 200,
-      order_currency: "INR",
-      customer_details: {
-        customer_id: "test_user_1",
-        customer_name: "Test User",
-        customer_email: "test@example.com",
-        customer_phone: "9999999999",
-      },
-    };
-    const response = await cashfree.PGCreateOrder(request);
-    res.json({ success: true, message: "Keys are working perfectly!", data: response.data });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: "Cashfree Error", 
-      details: error.response ? error.response.data : error.message 
-    });
-  }
 });
 
 export default router;

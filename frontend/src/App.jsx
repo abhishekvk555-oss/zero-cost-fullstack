@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import './style.css';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:10000';
-// Replace this with your actual WhatsApp number with country code (e.g., 919876543210)
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '919956042831';
 
 const curriculum = [
   { day: 'Day 1', title: 'SQL foundations', topics: 'Databases, tables, SELECT, DISTINCT, WHERE, ORDER BY and LIMIT.' },
@@ -38,6 +36,12 @@ export default function App() {
   const [adminSecret, setAdminSecret] = useState('');
   const [adminStudents, setAdminStudents] = useState([]);
   const [adminError, setAdminError] = useState('');
+
+  // NEW: Checkout Modal State
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [checkoutName, setCheckoutName] = useState('');
+  const [checkoutEmail, setCheckoutEmail] = useState('');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
 
   async function call(path, options = {}, authToken = token) {
     const response = await fetch(`${API}${path}`, {
@@ -147,18 +151,18 @@ export default function App() {
     setMessage('You have been logged out.');
   }
 
-  // Cashfree Payment Integration
-  const handlePayment = async () => {
+  // NEW: Handle the actual payment after form submit
+  const handlePayment = async (e) => {
+    e.preventDefault();
     try {
       const response = await fetch(`${API}/api/payment/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          clientId: 1, // For testing. In production, use the logged-in user's ID
           amount: 200,
-          customerName: fullName || "Test Student",
-          customerEmail: email || "test@example.com",
-          customerPhone: whatsappNumber || "9999999999",
+          customerName: checkoutName,
+          customerEmail: checkoutEmail,
+          customerPhone: checkoutPhone,
         }),
       });
 
@@ -176,8 +180,27 @@ export default function App() {
     }
   };
 
+  // --- SUCCESS PAGE AFTER PAYMENT ---
+  const queryParams = new URLSearchParams(window.location.search);
+  const orderId = queryParams.get('order_id');
+  const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/GA9LNIFJeSz2sSQymKA6Km"; // <-- PUT YOUR GROUP LINK HERE
+
+  if (orderId && !token) {
+    return (
+      <div className="app-shell" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
+        <div className="card" style={{ maxWidth: '500px', textAlign: 'center', padding: '3rem 2rem' }}>
+          <div style={{ background: '#dcfce7', color: '#166534', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 1.5rem auto', fontSize: '2rem' }}>✓</div>
+          <h2 style={{ marginBottom: '1rem' }}>Payment Successful!</h2>
+          <p style={{ color: '#475569', marginBottom: '2rem' }}>Thank you for joining MasterSQL. Click the button below to join the private WhatsApp group where all course links and updates will be shared.</p>
+          <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
+            Join WhatsApp Group
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   // --- LOGGED IN DASHBOARD ---
-  
   if (token) {
     return (
       <div className="app-shell">
@@ -195,7 +218,6 @@ export default function App() {
             </div>
           </div>
           
-          {/* SQL Query Editor Section */}
           <section className="dashboard-panel" style={{ marginTop: '2rem', border: '2px solid var(--primary)' }}>
             <h2>Practice SQL Query Editor</h2>
             <p className="muted" style={{ marginBottom: '1rem' }}>
@@ -242,7 +264,6 @@ export default function App() {
             )}
           </section>
 
-          {/* 7-Day Curriculum Section */}
           <section className="dashboard-panel" style={{ marginTop: '2rem' }}>
             <h2>Your 7-Day Learning Path</h2>
             <p className="muted" style={{ marginBottom: '1.5rem' }}>Follow this schedule to master SQL in one week.</p>
@@ -286,8 +307,8 @@ export default function App() {
             <h1>Go from SQL basics to <span>confident query writing.</span></h1>
             <p className="hero-description">Practise SQL step by step with live teaching, practical examples and interview-style questions. Build the skills to work with real datasets.</p>
             <div className="hero-actions">
-              {/* Updated Button to trigger Cashfree */}
-              <button className="btn-primary btn-large" onClick={handlePayment}>Join the course · ₹200</button>
+              {/* CHANGED: Now opens the checkout modal */}
+              <button className="btn-primary btn-large" onClick={() => setIsCheckoutModalOpen(true)}>Join the course · ₹200</button>
               <a className="text-link" href="#curriculum">Explore the syllabus ↓</a>
             </div>
             <div className="course-highlights"><span>✓ 7 focused learning days</span><span>✓ Live instructor-led sessions</span><span>✓ Practice and revision</span></div>
@@ -311,7 +332,6 @@ export default function App() {
           <div className="audience-grid"><article><h3>Beginners</h3><p>Start with SQL fundamentals and learn how to retrieve and understand data.</p></article><article><h3>Students and graduates</h3><p>Build a useful technical skill with guided examples and regular practice.</p></article><article><h3>Job seekers and analysts</h3><p>Revise joins, subqueries and window functions through interview-style problems.</p></article></div>
         </section>
 
-        {/* Admin Dashboard Section */}
         <section className="section" id="admin" style={{ borderTop: '2px dashed #cbd5e1', marginTop: '4rem' }}>
           <div className="section-header">
             <p className="eyebrow">FOR THE INSTRUCTOR</p>
@@ -366,14 +386,23 @@ export default function App() {
           )}
         </section>
 
-        {/* Updated Bottom Banner to trigger Cashfree */}
-        <section className="enroll-banner" id="enroll"><div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹200.</p></div><button className="btn-light btn-large" onClick={handlePayment}>Enquire on WhatsApp</button></section>
+        <section className="enroll-banner" id="enroll">
+          <div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹200.</p></div>
+          {/* CHANGED: Now opens the checkout modal */}
+          <button className="btn-light btn-large" onClick={() => setIsCheckoutModalOpen(true)}>Enquire on WhatsApp</button>
+        </section>
 
         <section className="section faq-section" id="faq"><div className="section-header"><p className="eyebrow">NEED TO KNOW MORE?</p><h2>Frequently asked questions</h2></div><details><summary>Is this course suitable for beginners?</summary><p>Yes. The course starts with SQL fundamentals and gradually moves to more advanced query-writing concepts.</p></details><details><summary>How are classes delivered?</summary><p>Classes are delivered live online. Course timing and joining details are shared after registration.</p></details><details><summary>What is the course fee?</summary><p>The one-time course fee is ₹200.</p></details></section>
       </main>
 
-      <footer className="site-footer"><a className="logo" href="#">Master<span>SQL</span></a><p>Learn SQL by understanding it, practising it and applying it.</p><span>© {new Date().getFullYear()} Master SQL in 7 Days</span><small>Backend status: {apiStatus}</small></footer>
+      <footer className="site-footer">
+        <a className="logo" href="#">Master<span>SQL</span></a>
+        <p>Learn SQL by understanding it, practising it and applying it.</p>
+        <span>© {new Date().getFullYear()} Master SQL in 7 Days</span>
+        <small>Backend status: {apiStatus}</small>
+      </footer>
 
+      {/* --- AUTH MODAL --- */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <section className="modal-content" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={event => event.stopPropagation()}>
@@ -382,7 +411,6 @@ export default function App() {
             <h2 id="auth-title">{modalMode === 'register' ? 'Create your account' : 'Welcome back'}</h2>
             <p className="modal-subtitle">Access your SQL learning space.</p>
             <form onSubmit={handleAuth}>
-              
               {modalMode === 'register' && (
                 <>
                   <label>Full Name
@@ -407,6 +435,34 @@ export default function App() {
             <button className="switch-auth" onClick={() => { setModalMode(modalMode === 'register' ? 'login' : 'register'); setMessage(''); }}>
               {modalMode === 'register' ? 'Already registered? Log in' : 'New here? Create an account'}
             </button>
+          </section>
+        </div>
+      )}
+
+      {/* --- NEW: CHECKOUT MODAL --- */}
+      {isCheckoutModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsCheckoutModalOpen(false)}>
+          <section className="modal-content" role="dialog" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setIsCheckoutModalOpen(false)}>×</button>
+            <p className="eyebrow">SECURE CHECKOUT</p>
+            <h2>Enter your details</h2>
+            <p className="modal-subtitle">Please provide your details to proceed to the ₹200 payment.</p>
+            
+            <form onSubmit={handlePayment}>
+              <label>Full Name
+                <input type="text" placeholder="John Doe" value={checkoutName} onChange={e => setCheckoutName(e.target.value)} required />
+              </label>
+              <label>Email address
+                <input type="email" placeholder="john@example.com" value={checkoutEmail} onChange={e => setCheckoutEmail(e.target.value)} required />
+              </label>
+              <label>WhatsApp Number
+                <input type="tel" placeholder="919876543210" value={checkoutPhone} onChange={e => setCheckoutPhone(e.target.value)} required />
+              </label>
+              
+              <button className="btn-primary btn-full" type="submit" style={{ marginTop: '1rem' }}>
+                Pay ₹200 & Join
+              </button>
+            </form>
           </section>
         </div>
       )}
