@@ -353,7 +353,7 @@ export default function App() {
             <h1>Go from SQL basics to <span>confident query writing.</span></h1>
             <p className="hero-description">Practise SQL step by step with live teaching, practical examples and interview-style questions. Build the skills to work with real datasets.</p>
             <div className="hero-actions">
-              <button className="btn-primary btn-large" onClick={() => setIsCheckoutModalOpen(true)}>Join the course · ₹200</button>
+              <button className="btn-primary btn-large" onClick={() => setIsCheckoutModalOpen(true)}>Join the course · ₹199</button>
               <a className="text-link" href="#curriculum">Explore the syllabus ↓</a>
             </div>
             <div className="course-highlights"><span>✓ 7 focused learning days</span><span>✓ Live instructor-led sessions</span><span>✓ Practice and revision</span></div>
@@ -365,7 +365,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="trust-strip"><div><strong>7 days</strong><span>Structured learning plan</span></div><div><strong>13.5 hours</strong><span>Live instructor-led sessions</span></div><div><strong>₹200</strong><span>One-time course fee</span></div></section>
+        <section className="trust-strip"><div><strong>7 days</strong><span>Structured learning plan</span></div><div><strong>13.5 hours</strong><span>Live instructor-led sessions</span></div><div><strong>₹199</strong><span>One-time course fee</span></div></section>
 
         <section className="section" id="curriculum">
           <div className="section-header"><p className="eyebrow">YOUR LEARNING ROADMAP</p><h2>What you'll learn in 7 days</h2><p>Each day builds on the previous one, taking you from writing basic queries to solving analyst-style SQL problems.</p></div>
@@ -432,11 +432,11 @@ export default function App() {
         </section>
 
         <section className="enroll-banner" id="enroll">
-          <div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹200.</p></div>
+          <div><p className="eyebrow">START LEARNING</p><h2>Make the next 7 days count.</h2><p>Join the live SQL course for a one-time fee of ₹199.</p></div>
           <button className="btn-light btn-large" onClick={() => setIsCheckoutModalOpen(true)}>Enquire on WhatsApp</button>
         </section>
 
-        <section className="section faq-section" id="faq"><div className="section-header"><p className="eyebrow">NEED TO KNOW MORE?</p><h2>Frequently asked questions</h2></div><details><summary>Is this course suitable for beginners?</summary><p>Yes. The course starts with SQL fundamentals and gradually moves to more advanced query-writing concepts.</p></details><details><summary>How are classes delivered?</summary><p>Classes are delivered live online. Course timing and joining details are shared after registration.</p></details><details><summary>What is the course fee?</summary><p>The one-time course fee is ₹200.</p></details></section>
+        <section className="section faq-section" id="faq"><div className="section-header"><p className="eyebrow">NEED TO KNOW MORE?</p><h2>Frequently asked questions</h2></div><details><summary>Is this course suitable for beginners?</summary><p>Yes. The course starts with SQL fundamentals and gradually moves to more advanced query-writing concepts.</p></details><details><summary>How are classes delivered?</summary><p>Classes are delivered live online. Course timing and joining details are shared after registration.</p></details><details><summary>What is the course fee?</summary><p>The one-time course fee is ₹199.</p></details></section>
       </main>
 
       <footer className="site-footer">
@@ -490,7 +490,7 @@ export default function App() {
             <button className="modal-close" onClick={() => setIsCheckoutModalOpen(false)}>×</button>
             <p className="eyebrow">SECURE CHECKOUT</p>
             <h2>Enter your details</h2>
-            <p className="modal-subtitle">Please provide your details to proceed to the ₹200 payment.</p>
+            <p className="modal-subtitle">Please provide your details to proceed to the ₹199 payment.</p>
             
             <form onSubmit={handlePayment}>
               <label>Full Name
@@ -504,7 +504,7 @@ export default function App() {
               </label>
               
               <button className="btn-primary btn-full" type="submit" style={{ marginTop: '1rem' }}>
-                Pay ₹200 & Join
+                Pay ₹199 & Join
               </button>
             </form>
           </section>
