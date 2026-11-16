@@ -162,7 +162,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: 1,
+          amount: 199,
           customerName: checkoutName,
           customerEmail: checkoutEmail,
           customerPhone: checkoutPhone,
