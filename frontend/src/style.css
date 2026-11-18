@@ -171,8 +171,113 @@ details p { margin-top: 1rem; color: var(--text-muted); }
 .modal-content input:focus { outline: none; border-color: var(--primary); }
 .switch-auth { background: none; border: none; color: var(--primary); font-size: 0.9rem; font-weight: 600; margin-top: 1.5rem; cursor: pointer; display: block; text-align: center; width: 100%; }
 
-/* MARQUEE ANIMATION (For the scrolling text at the top) */
+/* MARQUEE ANIMATION */
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (Mobile & Tablet)
+   ========================================= */
+
+/* Tablets (Screen width 768px to 1024px) */
+@media (max-width: 1024px) {
+  .course-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 5rem 5% 3rem 5%;
+    gap: 3rem;
+  }
+
+  .hero-actions, .course-highlights {
+    justify-content: center;
+  }
+
+  .audience-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .enroll-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Mobile Phones (Screen width less than 768px) */
+@media (max-width: 768px) {
+  /* Navbar */
+  .navbar {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .nav-links {
+    display: none; /* Hide middle links to save space on mobile */
+  }
+
+  /* Hero Section */
+  .hero-copy h1 {
+    font-size: 2.2rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-actions button {
+    width: 100%;
+  }
+
+  /* Countdown Timer */
+  div[style*="position: absolute"] {
+    position: static !important;
+    margin-bottom: 2rem;
+    display: inline-block !important;
+    transform: none !important;
+  }
+
+  /* Trust Strip */
+  .trust-strip {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+  }
+
+  /* Sections */
+  .section {
+    padding: 3rem 1rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+
+  /* Curriculum Grid */
+  .curriculum-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Audience Grid */
+  .audience-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Footer */
+  .site-footer {
+    padding: 2rem 1rem;
+  }
+
+  /* Modals */
+  .modal-content {
+    padding: 1.5rem;
+    width: 95%;
+    margin: 1rem;
+  }
 }
