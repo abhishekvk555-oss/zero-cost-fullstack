@@ -40,7 +40,8 @@ router.post('/create-order', async (req, res) => {
         customer_phone: customerPhone,
       },
       order_meta: {
-        return_url: `https://zero-cost-fullstack-txiy.vercel.app/?order_id={order_id}`,
+        // CHANGED: Updated to your new datacanva domain
+        return_url: `https://datacanva.vercel.app/?order_id={order_id}`,
       },
     };
 
