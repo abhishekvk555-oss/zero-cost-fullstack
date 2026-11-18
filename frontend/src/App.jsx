@@ -222,7 +222,7 @@ export default function App() {
           <div className="card" style={{ maxWidth: '500px', textAlign: 'center', padding: '3rem 2rem' }}>
             <div style={{ background: '#dcfce7', color: '#166534', width: '60px', height: '60px', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 1.5rem auto', fontSize: '2rem' }}>✓</div>
             <h2 style={{ marginBottom: '1rem' }}>Payment Successful!</h2>
-            <p style={{ color: '#475569', marginBottom: '2rem' }}>Thank you for joining MasterSQL. Click the button below to join the private WhatsApp group where all course links and updates will be shared.</p>
+            <p style={{ color: '#475569', marginBottom: '2rem' }}>Thank you for joining DataCanva. Click the button below to join the private WhatsApp group where all course links and updates will be shared.</p>
             <a href={WHATSAPP_GROUP_LINK} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ display: 'block', width: '100%', textDecoration: 'none' }}>
               Join WhatsApp Group
             </a>
@@ -231,7 +231,6 @@ export default function App() {
       );
     }
 
-    // If payment failed or was cancelled
     return (
       <div className="app-shell" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
         <div className="card" style={{ maxWidth: '500px', textAlign: 'center', padding: '3rem 2rem' }}>
@@ -251,7 +250,7 @@ export default function App() {
     return (
       <div className="app-shell">
         <nav className="navbar">
-          <a className="logo" href="/">Master<span>SQL</span></a>
+          <a className="logo" href="/">Data<span>Canva</span></a>
           <button className="btn-nav" onClick={logout}>Log out</button>
         </nav>
         
@@ -334,7 +333,7 @@ export default function App() {
   return (
     <div className="app-shell">
       <nav className="navbar">
-        <a className="logo" href="#" aria-label="Master SQL home">Master<span>SQL</span></a>
+        <a className="logo" href="#" aria-label="DataCanva home">Data<span>Canva</span></a>
         <div className="nav-links">
           <a href="#curriculum">Curriculum</a>
           <a href="#who">Who it's for</a>
@@ -347,7 +346,18 @@ export default function App() {
       </nav>
 
       <main>
-        <section className="hero course-hero">
+        {/* SCROLLING MARQUEE */}
+        <div style={{ background: '#0f172a', color: 'white', padding: '0.5rem 0', overflow: 'hidden', whiteSpace: 'nowrap', fontSize: '0.9rem', fontWeight: '600', letterSpacing: '1px' }}>
+          <div style={{ display: 'inline-block', animation: 'marquee 20s linear infinite' }}>
+            🔴 LIVE BATCH STARTS SOON ✦ 100 DAYS RECORDING ACCESS ✦ ₹199 ONLY ✦ PYTHON ✦ SQL ✦ FASTAPI ✦ TYPESCRIPT ✦ GENERATIVE AI ✦ CUSTOMER DISCOVERY ✦ STAKEHOLDER MANAGEMENT ✦ 🔴 LIVE BATCH STARTS SOON ✦ 100 DAYS RECORDING ACCESS ✦ ₹199 ONLY ✦ PYTHON ✦ SQL ✦ FASTAPI ✦ TYPESCRIPT ✦ GENERATIVE AI
+          </div>
+        </div>
+
+        <section className="hero course-hero" style={{ position: 'relative' }}>
+          <div style={{ position: 'absolute', top: '1rem', left: '50%', transform: 'translateX(-50%)', background: '#fee2e2', color: '#991b1b', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+            ⏳ Live batch starts in: <span style={{ fontFamily: 'monospace', fontSize: '1rem' }}>06d 04h 25m 33s</span>
+          </div>
+          
           <div className="hero-copy">
             <p className="hero-tag">LIVE ONLINE TRAINING · 7 DAYS</p>
             <h1>Go from SQL basics to <span>confident query writing.</span></h1>
@@ -440,9 +450,9 @@ export default function App() {
       </main>
 
       <footer className="site-footer">
-        <a className="logo" href="#">Master<span>SQL</span></a>
+        <a className="logo" href="#">Data<span>Canva</span></a>
         <p>Learn SQL by understanding it, practising it and applying it.</p>
-        <span>© {new Date().getFullYear()} Master SQL in 7 Days</span>
+        <span>© {new Date().getFullYear()} DataCanva</span>
         <small>Backend status: {apiStatus}</small>
       </footer>
 

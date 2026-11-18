@@ -63,7 +63,7 @@ a { text-decoration: none; color: inherit; }
 /* Hero Section */
 .course-hero {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 5rem 5%; max-width: 1200px; margin: 0 auto; gap: 4rem;
+  padding: 6rem 5% 5rem 5%; max-width: 1200px; margin: 0 auto; gap: 4rem;
 }
 .hero-copy { flex: 1; }
 .hero-tag { color: var(--primary); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 1rem; }
@@ -170,3 +170,9 @@ details p { margin-top: 1rem; color: var(--text-muted); }
 .modal-content input { width: 100%; padding: 0.75rem; margin-top: 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 1rem; }
 .modal-content input:focus { outline: none; border-color: var(--primary); }
 .switch-auth { background: none; border: none; color: var(--primary); font-size: 0.9rem; font-weight: 600; margin-top: 1.5rem; cursor: pointer; display: block; text-align: center; width: 100%; }
+
+/* MARQUEE ANIMATION (For the scrolling text at the top) */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
