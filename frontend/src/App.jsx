@@ -47,6 +47,9 @@ export default function App() {
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // LIVE COUNTDOWN TIMER STATE
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
   async function call(path, options = {}, authToken = token) {
     const response = await fetch(`${API}${path}`, {
       ...options,
@@ -69,6 +72,32 @@ export default function App() {
       })
       .then(() => setApiStatus('Connected'))
       .catch(() => setApiStatus('Temporarily unavailable'));
+  }, []);
+
+  // COUNTDOWN TIMER LOGIC
+  useEffect(() => {
+    // Set the target date to Nov 26, 2026 at 6:00 PM
+    const targetDate = new Date('2026-11-26T18:00:00').getTime();
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        clearInterval(interval);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   async function loadItems(currentToken = token) {
@@ -354,8 +383,13 @@ export default function App() {
         </div>
 
         <section className="hero course-hero" style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', top: '1rem', left: '50%', transform: 'translateX(-50%)', background: '#fee2e2', color: '#991b1b', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-            ⏳ Live batch starts in: <span style={{ fontFamily: 'monospace', fontSize: '1rem' }}>06d 04h 25m 33s</span>
+          
+          {/* DYNAMIC COUNTDOWN TIMER */}
+          <div style={{ position: 'absolute', top: '1rem', left: '50%', transform: 'translateX(-50%)', background: '#fee2e2', color: '#991b1b', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}>
+            ⏳ Live batch starts in: 
+            <span style={{ fontFamily: 'monospace', fontSize: '1rem' }}>
+              {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+            </span>
           </div>
           
           <div className="hero-copy">
