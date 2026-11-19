@@ -50,7 +50,7 @@ export default function App() {
   // Password Reset State
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetPassword, setResetPassword] = useState('');
-  const [modalView, setModalView] = useState('login'); // 'login', 'forgot', or 'reset'
+  const [modalView, setModalView] = useState('login');
 
   // LIVE COUNTDOWN TIMER STATE
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -434,6 +434,59 @@ export default function App() {
         <section className="section audience-section" id="who">
           <div className="section-header"><p className="eyebrow">MADE FOR PRACTICAL LEARNERS</p><h2>Who should join?</h2></div>
           <div className="audience-grid"><article><h3>Beginners</h3><p>Start with SQL fundamentals and learn how to retrieve and understand data.</p></article><article><h3>Students and graduates</h3><p>Build a useful technical skill with guided examples and regular practice.</p></article><article><h3>Job seekers and analysts</h3><p>Revise joins, subqueries and window functions through interview-style problems.</p></article></div>
+        </section>
+
+        {/* --- NEW: TESTIMONIALS SECTION --- */}
+        <section className="section" id="testimonials" style={{ background: '#f8fafc', maxWidth: '100%', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <div className="section-header">
+            <p className="eyebrow">STUDENT SUCCESS</p>
+            <h2>What our learners say</h2>
+            <p>Real stories from people who built careers with DataCanva.</p>
+          </div>
+          
+          <div className="audience-grid" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            {/* Testimonial 1 */}
+            <article style={{ background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <p style={{ color: '#334155', fontSize: '0.95rem', fontStyle: 'italic', flexGrow: 1 }}>
+                "I was a complete beginner. The 7-day SQL bootcamp at DataCanva was incredibly well-structured. The live sessions and the built-in practice editor made complex queries so easy to understand. I landed a Data Analyst role within a month!"
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '40px', height: '40px', background: '#dbeafe', color: '#1e40af', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>AS</div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '1rem' }}>Aarav Sharma</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Data Analyst at TechCorp</p>
+                </div>
+              </div>
+            </article>
+
+            {/* Testimonial 2 */}
+            <article style={{ background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <p style={{ color: '#334155', fontSize: '0.95rem', fontStyle: 'italic', flexGrow: 1 }}>
+                "The best ₹199 I ever spent. I thought SQL was just for developers, but the way it was taught here made it so practical. The WhatsApp group support is amazing. I can now write complex joins and window functions with confidence."
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '40px', height: '40px', background: '#fce7f3', color: '#9d174d', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>PK</div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '1rem' }}>Priya Kapoor</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Business Analyst at FinServe</p>
+                </div>
+              </div>
+            </article>
+
+            {/* Testimonial 3 */}
+            <article style={{ background: 'white', padding: '2rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <p style={{ color: '#334155', fontSize: '0.95rem', fontStyle: 'italic', flexGrow: 1 }}>
+                "I was looking for a quick refresher to upskill for my job. The 100-day recording access is a lifesaver. I could re-watch the classes at my own pace. The live query editor on the platform helped me practice without installing any software."
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ width: '40px', height: '40px', background: '#dcfce7', color: '#166534', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>RK</div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '1rem' }}>Rahul Kumar</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>Software Engineer at InnoTech</p>
+                </div>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section className="section" id="admin" style={{ borderTop: '2px dashed #cbd5e1', marginTop: '4rem' }}>
