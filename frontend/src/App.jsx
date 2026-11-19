@@ -22,7 +22,8 @@ export default function App() {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('register');
-
+const [score, setScore] = useState(0);
+const [queryMessage, setQueryMessage] = useState('');
   const [items, setItems] = useState([]);
   const [title, setTitle] = useState('');
   const [apiStatus, setApiStatus] = useState('Checking');
@@ -177,7 +178,30 @@ export default function App() {
       setQueryError(error.message);
     }
   }
-
+async function checkAnswer() {
+  setQueryMessage('');
+  const savedEmail = localStorage.getItem('email');
+  // We will use a dummy ID for now. In a real app, you'd store the user's client_id when they log in.
+  const clientId = 1; 
+  
+  try {
+    const res = await fetch(`${API}/api/practice/validate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, day: 'Day 1', questionId: 1, clientId })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      setQueryMessage('✅ ' + data.message);
+      setScore(prev => prev + 1); // Increment score locally
+    } else {
+      setQueryMessage('❌ ' + data.message);
+    }
+  } catch (error) {
+    setQueryMessage('Error checking answer');
+  }
+}
   async function fetchStudents() {
     setAdminError('');
     try {
@@ -320,9 +344,18 @@ export default function App() {
               style={{ width: '100%', height: '100px', padding: '1rem', fontFamily: 'monospace', fontSize: '1rem', borderRadius: '6px', border: '1px solid var(--border)', marginBottom: '1rem' }}
             />
             
-            <button className="btn-primary" onClick={runQuery} style={{ marginBottom: '1.5rem' }}>
-              Run Query
-            </button>
+           <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
+  <button className="btn-primary" onClick={runQuery}>
+    Run Query
+  </button>
+  <button className="btn-primary" style={{ background: '#10b981' }} onClick={checkAnswer}>
+    Submit Answer & Check Score
+  </button>
+  <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+    Score: {score}
+  </span>
+</div>
+{queryMessage && <p style={{ fontWeight: 'bold', marginBottom: '1rem', color: queryMessage.includes('✅') ? '#166534' : '#991b1b' }}>{queryMessage}</p>}
 
             {queryError && <p style={{ color: 'red', fontWeight: 'bold' }}>Error: {queryError}</p>}
 
