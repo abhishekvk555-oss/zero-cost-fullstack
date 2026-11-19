@@ -436,7 +436,7 @@ export default function App() {
           <div className="audience-grid"><article><h3>Beginners</h3><p>Start with SQL fundamentals and learn how to retrieve and understand data.</p></article><article><h3>Students and graduates</h3><p>Build a useful technical skill with guided examples and regular practice.</p></article><article><h3>Job seekers and analysts</h3><p>Revise joins, subqueries and window functions through interview-style problems.</p></article></div>
         </section>
 
-        {/* --- NEW: TESTIMONIALS SECTION --- */}
+        {/* --- TESTIMONIALS SECTION --- */}
         <section className="section" id="testimonials" style={{ background: '#f8fafc', maxWidth: '100%', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
           <div className="section-header">
             <p className="eyebrow">STUDENT SUCCESS</p>
@@ -551,11 +551,32 @@ export default function App() {
         <section className="section faq-section" id="faq"><div className="section-header"><p className="eyebrow">NEED TO KNOW MORE?</p><h2>Frequently asked questions</h2></div><details><summary>Is this course suitable for beginners?</summary><p>Yes. The course starts with SQL fundamentals and gradually moves to more advanced query-writing concepts.</p></details><details><summary>How are classes delivered?</summary><p>Classes are delivered live online. Course timing and joining details are shared after registration.</p></details><details><summary>What is the course fee?</summary><p>The one-time course fee is ₹199.</p></details></section>
       </main>
 
-      <footer className="site-footer">
-        <a className="logo" href="#">Data<span>Canva</span></a>
-        <p>Learn SQL by understanding it, practising it and applying it.</p>
-        <span>© {new Date().getFullYear()} DataCanva</span>
-        <small>Backend status: {apiStatus}</small>
+      {/* --- UPDATED FOOTER --- */}
+      <footer className="site-footer" style={{ background: '#0f172a', color: 'white', padding: '4rem 5%', textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '1rem' }}>
+          <span style={{ color: '#2563eb', fontSize: '2rem', fontWeight: '900' }}>&gt;&gt;</span>
+          <h2 style={{ fontSize: '2rem', fontWeight: '700', margin: 0, color: 'white' }}>DataCanva</h2>
+        </div>
+        
+        <p style={{ color: '#cbd5e1', fontSize: '1.1rem', marginBottom: '2rem' }}>Learn. Build. Grow.</p>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '2rem', fontSize: '1.5rem' }}>
+          <a href="https://www.instagram.com/data_canva/" target="_blank" rel="noopener noreferrer" style={{ color: '#cbd5e1' }}><i className="fab fa-instagram"></i></a>
+          <a href={`https://wa.me/919956042831`} target="_blank" rel="noopener noreferrer" style={{ color: '#cbd5e1' }}><i className="fab fa-whatsapp"></i></a>
+          <a href="mailto:contact@datacanva.com" style={{ color: '#cbd5e1' }}><i className="fas fa-envelope"></i></a>
+        </div>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap', color: '#cbd5e1', fontWeight: '600', fontSize: '0.95rem' }}>
+          <span>contact: </span>
+          <a href="mailto:contact@datacanva.com" style={{ color: '#cbd5e1', textDecoration: 'none' }}>contact@datacanva.com</a>
+          <span> | </span>
+          <a href="tel:+919956042831" style={{ color: '#cbd5e1', textDecoration: 'none' }}>+91 9956042831</a>
+        </div>
+
+        <div style={{ marginTop: '3rem', fontSize: '0.8rem', color: '#64748b' }}>
+          © {new Date().getFullYear()} DataCanva. All rights reserved. <br/>
+          <span style={{ fontSize: '0.75rem' }}>Backend status: {apiStatus}</span>
+        </div>
       </footer>
 
       {/* --- AUTH MODAL (WITH FORGOT PASSWORD) --- */}
