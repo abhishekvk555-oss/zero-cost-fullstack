@@ -1,3 +1,4 @@
+import { questionBank } from './questions';
 import { useEffect, useState } from 'react';
 import './style.css';
 
@@ -358,12 +359,24 @@ export default function App() {
             <p className="muted" style={{ marginBottom: '1.5rem' }}>Follow this schedule to master SQL in one week.</p>
             <div className="curriculum-list">
               {curriculum.map(item => (
-                <article className="curriculum-row" key={item.day}>
-                  <span className="day-pill">{item.day}</span>
-                  <div>
-                    <h3>{item.title}</h3>
-                    <p>{item.topics}</p>
+                <article className="curriculum-row" key={item.day} style={{ flexDirection: 'column', gap: '0.5rem', paddingBottom: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span className="day-pill">{item.day}</span>
+                    <h3 style={{ margin: 0 }}>{item.title}</h3>
                   </div>
+                  <p style={{ marginLeft: '0', marginTop: '0.2rem' }}>{item.topics}</p>
+                  
+                  {/* PRACTICE QUESTIONS ACCORDION */}
+                  <details style={{ marginTop: '0.5rem', width: '100%', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <summary style={{ cursor: 'pointer', fontWeight: 'bold', color: 'var(--primary)', padding: '0.8rem 1rem' }}>
+                      View Practice Questions ({questionBank[item.day].length})
+                    </summary>
+                    <ol style={{ padding: '1rem 2rem', fontSize: '0.9rem', color: '#334155', lineHeight: '1.8' }}>
+                      {questionBank[item.day].map((q, idx) => (
+                        <li key={idx} style={{ marginBottom: '0.5rem' }}>{q}</li>
+                      ))}
+                    </ol>
+                  </details>
                 </article>
               ))}
             </div>
