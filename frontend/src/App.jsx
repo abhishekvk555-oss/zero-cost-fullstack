@@ -47,6 +47,11 @@ export default function App() {
   const [isPaymentVerified, setIsPaymentVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
+  // Password Reset State
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [modalView, setModalView] = useState('login'); // 'login', 'forgot', or 'reset'
+
   // LIVE COUNTDOWN TIMER STATE
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
@@ -76,7 +81,6 @@ export default function App() {
 
   // COUNTDOWN TIMER LOGIC
   useEffect(() => {
-    // Set the target date to Nov 26, 2026 at 6:00 PM
     const targetDate = new Date('2026-11-26T18:00:00').getTime();
 
     const interval = setInterval(() => {
@@ -100,6 +104,16 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Check for reset token in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const resetToken = params.get('reset_token');
+    if (resetToken) {
+      setModalView('reset');
+      setIsModalOpen(true);
+    }
+  }, []);
+
   async function loadItems(currentToken = token) {
     try {
       const data = await call('/api/items', {}, currentToken);
@@ -115,6 +129,7 @@ export default function App() {
 
   function openModal(mode) {
     setModalMode(mode);
+    setModalView('login');
     setMessage('');
     setIsModalOpen(true);
   }
@@ -234,7 +249,7 @@ export default function App() {
   // --- SUCCESS PAGE AFTER PAYMENT ---
   const queryParams = new URLSearchParams(window.location.search);
   const orderId = queryParams.get('order_id');
-  const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/FpA3sfOf8tF6TYIOw2px8D"; // <-- YOUR GROUP LINK
+  const WHATSAPP_GROUP_LINK = "https://chat.whatsapp.com/FpA3sfOf8tF6TYIOw2px8D";
 
   if (orderId && !token) {
     if (isVerifying) {
@@ -490,39 +505,111 @@ export default function App() {
         <small>Backend status: {apiStatus}</small>
       </footer>
 
-      {/* --- AUTH MODAL --- */}
+      {/* --- AUTH MODAL (WITH FORGOT PASSWORD) --- */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <section className="modal-content" role="dialog" aria-modal="true" aria-labelledby="auth-title" onClick={event => event.stopPropagation()}>
             <button className="modal-close" aria-label="Close" onClick={() => setIsModalOpen(false)}>×</button>
             <p className="eyebrow">STUDENT ACCOUNT</p>
-            <h2 id="auth-title">{modalMode === 'register' ? 'Create your account' : 'Welcome back'}</h2>
-            <p className="modal-subtitle">Access your SQL learning space.</p>
-            <form onSubmit={handleAuth}>
-              {modalMode === 'register' && (
-                <>
-                  <label>Full Name
-                    <input type="text" placeholder="John Doe" value={fullName} onChange={event => setFullName(event.target.value)} required />
+            
+            {modalView === 'forgot' ? (
+              <>
+                <h2 id="auth-title">Reset Password</h2>
+                <p className="modal-subtitle">Enter your email and we'll send you a reset link.</p>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  try {
+                    const res = await fetch(`${API}/api/auth/forgot-password`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: forgotEmail })
+                    });
+                    const data = await res.json();
+                    setMessage(data.message || data.error);
+                    if (res.ok) setTimeout(() => setModalView('login'), 3000);
+                  } catch (err) { setMessage("Error sending email"); }
+                }}>
+                  <label>Email address
+                    <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required />
                   </label>
-                  <label>WhatsApp Number
-                    <input type="tel" placeholder="919876543210" value={whatsappNumber} onChange={event => setWhatsappNumber(event.target.value)} required />
+                  {message && <p className="form-message" role="alert" style={{ color: 'var(--primary)' }}>{message}</p>}
+                  <button className="btn-primary btn-full" type="submit" style={{ marginTop: '1rem' }}>Send Reset Link</button>
+                  <button type="button" className="switch-auth" style={{ marginTop: '1rem' }} onClick={() => { setModalView('login'); setMessage(''); }}>Back to Login</button>
+                </form>
+              </>
+            ) : modalView === 'reset' ? (
+              <>
+                <h2 id="auth-title">Create New Password</h2>
+                <p className="modal-subtitle">Please enter your new password below.</p>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  const token = new URLSearchParams(window.location.search).get('reset_token');
+                  try {
+                    const res = await fetch(`${API}/api/auth/reset-password`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ token, newPassword: resetPassword })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                      setMessage("Password reset successfully! Please log in.");
+                      setTimeout(() => { 
+                        window.history.replaceState({}, document.title, "/"); 
+                        setModalView('login'); 
+                        setMessage('');
+                      }, 2000);
+                    } else {
+                      setMessage(data.error);
+                    }
+                  } catch (err) { setMessage("Error resetting password"); }
+                }}>
+                  <label>New Password
+                    <input type="password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} required minLength={8} />
                   </label>
-                </>
-              )}
+                  {message && <p className="form-message" role="alert" style={{ color: 'var(--primary)' }}>{message}</p>}
+                  <button className="btn-primary btn-full" type="submit" style={{ marginTop: '1rem' }}>Reset Password</button>
+                </form>
+              </>
+            ) : (
+              <>
+                <h2 id="auth-title">{modalMode === 'register' ? 'Create your account' : 'Welcome back'}</h2>
+                <p className="modal-subtitle">Access your SQL learning space.</p>
+                <form onSubmit={handleAuth}>
+                  {modalMode === 'register' && (
+                    <>
+                      <label>Full Name
+                        <input type="text" placeholder="John Doe" value={fullName} onChange={event => setFullName(event.target.value)} required />
+                      </label>
+                      <label>WhatsApp Number
+                        <input type="tel" placeholder="919876543210" value={whatsappNumber} onChange={event => setWhatsappNumber(event.target.value)} required />
+                      </label>
+                    </>
+                  )}
 
-              <label>Email address
-                <input type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required />
-              </label>
-              <label>Password
-                <input type="password" autoComplete={modalMode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={8} />
-              </label>
-              
-              {message && <p className="form-message" role="alert">{message}</p>}
-              <button className="btn-primary btn-full" type="submit">{modalMode === 'register' ? 'Create account' : 'Log in'}</button>
-            </form>
-            <button className="switch-auth" onClick={() => { setModalMode(modalMode === 'register' ? 'login' : 'register'); setMessage(''); }}>
-              {modalMode === 'register' ? 'Already registered? Log in' : 'New here? Create an account'}
-            </button>
+                  <label>Email address
+                    <input type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} required />
+                  </label>
+                  <label>Password
+                    <input type="password" autoComplete={modalMode === 'register' ? 'new-password' : 'current-password'} value={password} onChange={event => setPassword(event.target.value)} required minLength={8} />
+                  </label>
+                  
+                  {message && <p className="form-message" role="alert">{message}</p>}
+                  <button className="btn-primary btn-full" type="submit">{modalMode === 'register' ? 'Create account' : 'Log in'}</button>
+                </form>
+                
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', alignItems: 'center' }}>
+                  <button type="button" className="switch-auth" style={{ margin: 0, width: 'auto', fontSize: '0.85rem' }} onClick={() => { setModalMode(modalMode === 'register' ? 'login' : 'register'); setMessage(''); }}>
+                    {modalMode === 'register' ? 'Already registered? Log in' : 'New here? Create an account'}
+                  </button>
+                  
+                  {modalMode === 'login' && (
+                    <button type="button" className="switch-auth" style={{ margin: 0, width: 'auto', fontSize: '0.85rem', color: '#64748b' }} onClick={() => { setModalView('forgot'); setMessage(''); }}>
+                      Forgot Password?
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </section>
         </div>
       )}
