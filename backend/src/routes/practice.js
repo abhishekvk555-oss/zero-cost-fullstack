@@ -4,8 +4,9 @@ import { sql } from '../config/db.js';
 
 const router = express.Router();
 
-// TEMPORARY: This will be your dummy database schema for the editor
+// UPGRADED DATABASE SCHEMA FOR PRACTICE
 const setupDatabase = (db) => {
+  // 1. Create Employees Table
   db.run(`
     CREATE TABLE employees (
       id INTEGER PRIMARY KEY,
@@ -22,13 +23,28 @@ const setupDatabase = (db) => {
     ('Diana', 'Sales', 55000),
     ('Eve', 'Engineering', 95000);
   `);
+
+  // 2. Create Departments Table
+  db.run(`
+    CREATE TABLE departments (
+      id INTEGER PRIMARY KEY,
+      department_name TEXT,
+      location TEXT
+    );
+  `);
+  db.run(`
+    INSERT INTO departments (department_name, location) VALUES 
+    ('Engineering', 'New York'),
+    ('Marketing', 'London'),
+    ('Sales', 'Mumbai');
+  `);
 };
 
 // The actual correct answers for our validation engine
 const solutions = {
   'Day 1': "SELECT * FROM employees;",
   'Day 2': "SELECT department, SUM(salary) FROM employees GROUP BY department;",
-  'Day 3': "SELECT * FROM employees WHERE department = 'Engineering';", // Simplified for now
+  'Day 3': "SELECT employees.name, departments.location FROM employees INNER JOIN departments ON employees.department = departments.department_name;", 
   'Day 4': "SELECT * FROM employees WHERE salary > (SELECT AVG(salary) FROM employees);",
   'Day 5': "SELECT name, CASE WHEN salary > 70000 THEN 'High' ELSE 'Low' END FROM employees;",
   'Day 6': "SELECT name, ROW_NUMBER() OVER(ORDER BY salary DESC) FROM employees;",
@@ -57,7 +73,7 @@ router.post('/execute', async (req, res) => {
   }
 });
 
-// 2. Validate Answer Route (NEW)
+// 2. Validate Answer Route
 router.post('/validate', async (req, res) => {
   const { query, day, questionId, clientId } = req.body;
 
@@ -83,7 +99,7 @@ router.post('/validate', async (req, res) => {
   }
 });
 
-// 3. Get Score Route (NEW)
+// 3. Get Score Route
 router.get('/score', async (req, res) => {
   const { clientId } = req.query;
   try {

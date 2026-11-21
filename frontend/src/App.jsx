@@ -1,4 +1,5 @@
 import { questionBank } from './questions';
+import { databaseSchema } from './schema';
 import { useEffect, useState } from 'react';
 import './style.css';
 
@@ -22,8 +23,8 @@ export default function App() {
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('register');
-const [score, setScore] = useState(0);
-const [queryMessage, setQueryMessage] = useState('');
+  const [score, setScore] = useState(0);
+  const [queryMessage, setQueryMessage] = useState('');
   const [items, setItems] = useState([]);
   const [title, setTitle] = useState('');
   const [apiStatus, setApiStatus] = useState('Checking');
@@ -168,6 +169,7 @@ const [queryMessage, setQueryMessage] = useState('');
   async function runQuery() {
     setQueryError('');
     setQueryResults(null);
+    setQueryMessage('');
     try {
       const data = await call('/api/practice/execute', {
         method: 'POST',
@@ -178,30 +180,30 @@ const [queryMessage, setQueryMessage] = useState('');
       setQueryError(error.message);
     }
   }
-async function checkAnswer() {
-  setQueryMessage('');
-  const savedEmail = localStorage.getItem('email');
-  // We will use a dummy ID for now. In a real app, you'd store the user's client_id when they log in.
-  const clientId = 1; 
-  
-  try {
-    const res = await fetch(`${API}/api/practice/validate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, day: 'Day 1', questionId: 1, clientId })
-    });
-    const data = await res.json();
+
+  async function checkAnswer() {
+    setQueryMessage('');
+    const clientId = 1; // In a real app, this would be dynamic based on the logged-in user
     
-    if (data.success) {
-      setQueryMessage('✅ ' + data.message);
-      setScore(prev => prev + 1); // Increment score locally
-    } else {
-      setQueryMessage('❌ ' + data.message);
+    try {
+      const res = await fetch(`${API}/api/practice/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, day: 'Day 1', questionId: 1, clientId })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        setQueryMessage('✅ ' + data.message);
+        setScore(prev => prev + 1);
+      } else {
+        setQueryMessage('❌ ' + data.message);
+      }
+    } catch (error) {
+      setQueryMessage('Error checking answer');
     }
-  } catch (error) {
-    setQueryMessage('Error checking answer');
   }
-}
+
   async function fetchStudents() {
     setAdminError('');
     try {
@@ -314,7 +316,7 @@ async function checkAnswer() {
     );
   }
 
-  // --- LOGGED IN DASHBOARD ---
+  // --- LOGGED IN DASHBOARD (NEW LOOK) ---
   if (token) {
     return (
       <div className="app-shell">
@@ -323,98 +325,111 @@ async function checkAnswer() {
           <button className="btn-nav" onClick={logout}>Log out</button>
         </nav>
         
-        <main className="dashboard-content">
-          <div className="dashboard-header">
-            <div>
-              <p className="eyebrow">STUDENT AREA</p>
-              <h1>Welcome to your learning space</h1>
-              <p className="muted">Your next step is to practise a little SQL every day.</p>
-            </div>
-          </div>
+        <div style={{ display: 'flex', maxWidth: '1400px', margin: '2rem auto', padding: '0 5%', gap: '2rem', flexWrap: 'wrap' }}>
           
-          <section className="dashboard-panel" style={{ marginTop: '2rem', border: '2px solid var(--primary)' }}>
-            <h2>Practice SQL Query Editor</h2>
-            <p className="muted" style={{ marginBottom: '1rem' }}>
-              Try running queries against our sample <code>employees</code> table. Example: <code>SELECT * FROM employees;</code>
-            </p>
-            
-            <textarea
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              style={{ width: '100%', height: '100px', padding: '1rem', fontFamily: 'monospace', fontSize: '1rem', borderRadius: '6px', border: '1px solid var(--border)', marginBottom: '1rem' }}
-            />
-            
-           <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
-  <button className="btn-primary" onClick={runQuery}>
-    Run Query
-  </button>
-  <button className="btn-primary" style={{ background: '#10b981' }} onClick={checkAnswer}>
-    Submit Answer & Check Score
-  </button>
-  <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
-    Score: {score}
-  </span>
-</div>
-{queryMessage && <p style={{ fontWeight: 'bold', marginBottom: '1rem', color: queryMessage.includes('✅') ? '#166534' : '#991b1b' }}>{queryMessage}</p>}
+          {/* LEFT SIDEBAR: SCHEMA */}
+          <div style={{ flex: '1 1 250px', background: '#fff', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem', height: 'fit-content' }}>
+            <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.5rem' }}>Database Schema</h2>
+            {databaseSchema.map((table, i) => (
+              <div key={i} style={{ marginBottom: '1.5rem' }}>
+                <h3 style={{ fontSize: '1rem', color: 'var(--primary)', marginBottom: '0.5rem' }}>{table.table}</h3>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  {table.columns.map((col, j) => (
+                    <li key={j} style={{ fontSize: '0.85rem', padding: '0.2rem 0', color: '#475569', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>{col.name}</span>
+                      <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}>{col.type}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
 
-            {queryError && <p style={{ color: 'red', fontWeight: 'bold' }}>Error: {queryError}</p>}
+          {/* RIGHT AREA: QUESTIONS & EDITOR */}
+          <div style={{ flex: '3 1 600px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            {/* QUERY EDITOR */}
+            <div style={{ background: '#fff', border: '2px solid var(--primary)', borderRadius: '12px', padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.2rem' }}>SQL Query Editor</h2>
+                <span style={{ background: '#eff6ff', color: 'var(--primary)', padding: '0.3rem 0.8rem', borderRadius: '20px', fontWeight: 'bold' }}>
+                  Score: {score}
+                </span>
+              </div>
+              
+              <textarea
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                style={{ width: '100%', height: '120px', padding: '1rem', fontFamily: 'monospace', fontSize: '1rem', borderRadius: '6px', border: '1px solid var(--border)', background: '#f8fafc', marginBottom: '1rem' }}
+              />
+              
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                <button className="btn-primary" onClick={runQuery}>Run Query</button>
+                <button className="btn-primary" style={{ background: '#10b981' }} onClick={checkAnswer}>Submit Answer</button>
+              </div>
 
-            {queryResults && (
-              <div style={{ overflowX: 'auto' }}>
-                {queryResults.columns.length > 0 ? (
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                    <thead>
-                      <tr>
-                        {queryResults.columns.map((col, i) => (
-                          <th key={i} style={{ borderBottom: '2px solid var(--border)', padding: '0.5rem', background: '#f8fafc' }}>{col}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {queryResults.values.map((row, i) => (
-                        <tr key={i}>
-                          {row.map((cell, j) => (
-                            <td key={j} style={{ borderBottom: '1px solid var(--border)', padding: '0.5rem' }}>{cell}</td>
+              {queryMessage && <p style={{ fontWeight: 'bold', marginBottom: '1rem', color: queryMessage.includes('✅') ? '#166534' : '#991b1b' }}>{queryMessage}</p>}
+              {queryError && <p style={{ color: 'red', fontWeight: 'bold' }}>Error: {queryError}</p>}
+
+              {queryResults && (
+                <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '8px' }}>
+                  {queryResults.columns.length > 0 ? (
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ background: '#f8fafc' }}>
+                          {queryResults.columns.map((col, i) => (
+                            <th key={i} style={{ padding: '0.8rem', borderBottom: '2px solid var(--border)' }}>{col}</th>
                           ))}
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="muted">Query executed successfully. No data returned.</p>
-                )}
-              </div>
-            )}
-          </section>
-
-          <section className="dashboard-panel" style={{ marginTop: '2rem' }}>
-            <h2>Your 7-Day Learning Path</h2>
-            <p className="muted" style={{ marginBottom: '1.5rem' }}>Follow this schedule to master SQL in one week.</p>
-            <div className="curriculum-list">
-              {curriculum.map(item => (
-                <article className="curriculum-row" key={item.day} style={{ flexDirection: 'column', gap: '0.5rem', paddingBottom: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <span className="day-pill">{item.day}</span>
-                    <h3 style={{ margin: 0 }}>{item.title}</h3>
-                  </div>
-                  <p style={{ marginLeft: '0', marginTop: '0.2rem' }}>{item.topics}</p>
-                  
-                  {/* PRACTICE QUESTIONS ACCORDION */}
-                  <details style={{ marginTop: '0.5rem', width: '100%', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                    <summary style={{ cursor: 'pointer', fontWeight: 'bold', color: 'var(--primary)', padding: '0.8rem 1rem' }}>
-                      View Practice Questions ({questionBank[item.day].length})
-                    </summary>
-                    <ol style={{ padding: '1rem 2rem', fontSize: '0.9rem', color: '#334155', lineHeight: '1.8' }}>
-                      {questionBank[item.day].map((q, idx) => (
-                        <li key={idx} style={{ marginBottom: '0.5rem' }}>{q}</li>
-                      ))}
-                    </ol>
-                  </details>
-                </article>
-              ))}
+                      </thead>
+                      <tbody>
+                        {queryResults.values.map((row, i) => (
+                          <tr key={i}>
+                            {row.map((cell, j) => (
+                              <td key={j} style={{ padding: '0.8rem', borderBottom: '1px solid var(--border)' }}>{cell}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p style={{ padding: '1rem', color: '#475569' }}>Query executed successfully. No data returned.</p>
+                  )}
+                </div>
+              )}
             </div>
-          </section>
-        </main>
+
+            {/* QUESTION LIST */}
+            <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Practice Questions</h2>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {/* Example Question 1 */}
+                <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1rem', background: '#eff6ff', borderBottom: '1px solid var(--border)' }}>
+                    <span style={{ background: '#bfdbfe', color: '#1e40af', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 'bold' }}>EASY</span>
+                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Incomplete</span>
+                  </div>
+                  <div style={{ padding: '1rem', fontSize: '0.95rem' }}>
+                    Show the first name and department of all employees.
+                  </div>
+                </div>
+
+                {/* Example Question 2 */}
+                <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 1rem', background: '#eff6ff', borderBottom: '1px solid var(--border)' }}>
+                    <span style={{ background: '#bfdbfe', color: '#1e40af', fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 'bold' }}>EASY</span>
+                    <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Incomplete</span>
+                  </div>
+                  <div style={{ padding: '1rem', fontSize: '0.95rem' }}>
+                    Show the names of employees whose salary is greater than 80000.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
     );
   }
